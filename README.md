@@ -10,7 +10,7 @@ To ensure strict data hygiene, the system uses custom JavaScript glue logic {{ $
 2. Error Handling & Reliability
 Built with a "failure-first" mindset to ensure 100% reliability:
 - Retries: Mission-critical HTTP Request nodes are configured with exponential backoff retries to handle transient network or API timeouts.
- -Fallback Paths: The GHL update node includes a logic-based rollback/fallback plan. If the automated tagging fails, the system bypasses the "success" path and triggers a high-priority manual intervention alert.
+- Fallback Paths: The GHL update node includes a logic-based rollback/fallback plan. If the automated tagging fails, the system bypasses the "success" path and triggers a high-priority manual intervention alert.
 
 3. Monitoring & Alerting
 - Global Monitoring: A dedicated Error Trigger node acts as a global listener, capturing any unhandled execution failures across the entire workflow.
@@ -22,4 +22,5 @@ Built with a "failure-first" mindset to ensure 100% reliability:
 3. Validation: REST API metadata retrieval via OAuth2.
 4. Decision Gate: Idempotency check via tag-array stringification.
 5. Provisioning & Logging: GHL record update with a success-verification IF-gate.
+
 6. Alerting: Automated Slack dispatch for lead status or technical failure.
