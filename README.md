@@ -5,7 +5,7 @@ A robust, production-grade automation designed to manage high-value lead flows b
 
 ### **Engineering Specs & Design Patterns**
 1. Idempotency & Data Hygiene
-To ensure strict data hygiene, the system uses custom JavaScript glue logic {{ $json.contact.tags.join(',') }} to validate existing records. This idempotency check prevents duplicate processing, redundant API calls, and Slack notification spam, even in cases of webhook retries or multiple form submissions.
+To ensure strict data hygiene, the system uses custom JavaScript glue logic ``{{ $json.contact.tags.join(',') }}`` to validate existing records. This idempotency check prevents duplicate processing, redundant API calls, and Slack notification spam, even in cases of webhook retries or multiple form submissions.
 
 2. Error Handling & Reliability
 Built with a "failure-first" mindset to ensure 100% reliability:
@@ -24,3 +24,4 @@ Built with a "failure-first" mindset to ensure 100% reliability:
 5. Provisioning & Logging: GHL record update with a success-verification IF-gate.
 
 6. Alerting: Automated Slack dispatch for lead status or technical failure.
+
