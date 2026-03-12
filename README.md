@@ -26,52 +26,9 @@ Without protection, this can result in:
 
 This workflow ensures that each lead is processed exactly once, even when the trigger fires multiple times.
 
-### **Architecture**
-
-GoHighLevel Lead Submission
-            │
-            ▼
-Webhook Trigger (New Lead Inbound)
-            │
-            ▼
-Budget Qualification Filter (>$5k)
-      ┌───────────────┴───────────────┐
-      ▼                               ▼
-Filtered Lead                     Qualified Lead
-(Slack Notification)                   │
-                                       ▼
-                           Fetch Contact Metadata
-                             (GHL API Request)
-                                       │
-                                       ▼
-                           Idempotency Tag Check
-                        (Has "VIP Processed" Tag?)
-                           ┌───────────┴───────────┐
-                           ▼                       ▼
-                     Duplicate Lead            New Lead
-                     Slack Notification            │
-                                                   ▼
-                                       Update Contact (Add VIP Tag)
-                                                   │
-                                                   ▼
-                                        Update Verification Gate
-                           ┌──────────────┴──────────────┐
-                           ▼                             ▼
-                    VIP Lead Provisioned         Update Failed
-                      Slack Notification        Critical Slack Alert
-
-### **Global Error Monitoring**
-
-Workflow Execution Failure
-            │
-            ▼
-n8n Error Trigger
-            │
-            ▼
-Slack Technical Alert
-
 ### **Tech Stack**
 - GoHighLevel – CRM platform and webhook source
 - n8n – workflow orchestration
 - GoHighLevel REST API – contact retrieval and updates
 - Slack – operational alerting and monitoring
+
