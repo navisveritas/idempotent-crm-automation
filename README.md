@@ -1,27 +1,77 @@
 # Idempotent CRM Automation
 
-### **Project Overview**
-A robust, production-grade automation designed to manage high-value lead flows between GoHighLevel (GHL) and Slack. This workflow moves beyond simple integration by implementing advanced error-handling, logging, and monitoring protocols essential for mission-critical business operations.
+## **Overview**
 
-### **Engineering Specs & Design Patterns**
-1. Idempotency & Data Hygiene
-To ensure strict data hygiene, the system uses custom JavaScript glue logic ``{{ $json.contact.tags.join(',') }}`` to validate existing records. This idempotency check prevents duplicate processing, redundant API calls, and Slack notification spam, even in cases of webhook retries or multiple form submissions.
+This project demonstrates a fault-tolerant lead processing workflow between GoHighLevel (GHL) and Slack built in n8n.
+The workflow is designed to safely process high-value leads while preventing duplicate actions caused by webhook retries, repeated form submissions, or API instability.
 
-2. Error Handling & Reliability
-Built with a "failure-first" mindset to ensure 100% reliability:
-- Retries: Mission-critical HTTP Request nodes are configured with exponential backoff retries to handle transient network or API timeouts.
-- Fallback Paths: The GHL update node includes a logic-based rollback/fallback plan. If the automated tagging fails, the system bypasses the "success" path and triggers a high-priority manual intervention alert.
+### **Key goals of the system:**
+- Prevent duplicate lead processing (idempotency)
+- Maintain CRM data hygiene
+- Provide operational monitoring through Slack alerts
+- Handle API failures with retry and fallback logic
 
-3. Monitoring & Alerting
-- Global Monitoring: A dedicated Error Trigger node acts as a global listener, capturing any unhandled execution failures across the entire workflow.
-- Structured Alerting: Integrated Slack alerts differentiate between business outcomes (New VIP vs. Duplicate) and technical failures (API Error vs. Workflow Crash), providing a real-time monitoring dashboard within the communication stack.
+### **Problem**
+Lead submission systems often generate duplicate events due to:
+- repeated form submissions
+- webhook retries
+- API timeouts
+- user refreshes or accidental resubmits
 
-### **The Workflow Architecture**
-1. Discovery/Trigger: Inbound Webhook ingestion from GHL.
-2. Qualification: Segmenting leads by budget (>$5k) for high-impact routing.
-3. Validation: REST API metadata retrieval via OAuth2.
-4. Decision Gate: Idempotency check via tag-array stringification.
-5. Provisioning & Logging: GHL record update with a success-verification IF-gate.
+Without protection, this can result in:
+- duplicate CRM updates
+- repeated Slack notifications
+- unnecessary API calls
+- inconsistent lead state
 
-6. Alerting: Automated Slack dispatch for lead status or technical failure.
+This workflow ensures that each lead is processed exactly once, even when the trigger fires multiple times.
 
+### **Architecture**
+
+GoHighLevel Lead Submission
+            │
+            ▼
+Webhook Trigger (New Lead Inbound)
+            │
+            ▼
+Budget Qualification Filter (>$5k)
+      ┌───────────────┴───────────────┐
+      ▼                               ▼
+Filtered Lead                     Qualified Lead
+(Slack Notification)                   │
+                                       ▼
+                           Fetch Contact Metadata
+                             (GHL API Request)
+                                       │
+                                       ▼
+                           Idempotency Tag Check
+                        (Has "VIP Processed" Tag?)
+                           ┌───────────┴───────────┐
+                           ▼                       ▼
+                     Duplicate Lead            New Lead
+                     Slack Notification            │
+                                                   ▼
+                                       Update Contact (Add VIP Tag)
+                                                   │
+                                                   ▼
+                                        Update Verification Gate
+                           ┌──────────────┴──────────────┐
+                           ▼                             ▼
+                    VIP Lead Provisioned         Update Failed
+                      Slack Notification        Critical Slack Alert
+
+### **Global Error Monitoring**
+
+Workflow Execution Failure
+            │
+            ▼
+n8n Error Trigger
+            │
+            ▼
+Slack Technical Alert
+
+### **Tech Stack**
+- GoHighLevel – CRM platform and webhook source
+- n8n – workflow orchestration
+- GoHighLevel REST API – contact retrieval and updates
+- Slack – operational alerting and monitoring
