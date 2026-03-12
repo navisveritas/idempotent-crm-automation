@@ -29,7 +29,8 @@ This workflow ensures that each lead is processed exactly once, even when the tr
 ## **Tech Stack**
 - **GoHighLevel** – CRM platform and webhook source
 - **n8n** – workflow orchestration
-- **GoHighLevel** REST API – contact retrieval and updates
+- **GoHighLevel REST API** – contact retrieval and updates
 - **Slack** – operational alerting and monitoring
+
 
 
